@@ -3,16 +3,16 @@ import { fetchDailyData } from "../../api";
 import { Line, Bar } from "react-chartjs-2";
 import styles from "./Chart.module.css";
 
-const Chart = () => {
+const Chart = ({ data: { confirmed, recovered, deaths }, country }) => {
   const [dailyData, setDailyData] = useState([]);
 
   useEffect(() => {
     const fetchAPI = async () => {
       setDailyData(await fetchDailyData());
     };
-    console.log(dailyData);
+
     fetchAPI();
-  });
+  }, []);
 
   const linerChart = dailyData.length ? (
     <Line
@@ -36,7 +36,32 @@ const Chart = () => {
       }}
     />
   ) : null;
-  return <div className={styles.container}>{linerChart}</div>;
+
+  const barChart = confirmed ? (
+    <Bar
+      data={{
+        labels: ["infected", "Recovered", "Deaths"],
+        datasets: [
+          {
+            label: "People",
+            backgroundColor: [
+              "rgba(0,0,255,0.5)",
+              "rgba(0,255,0,0.5)",
+              "rgba(255,0,0,0.5)",
+            ],
+            data: [confirmed.value, recovered.value, deaths.value],
+          },
+        ],
+      }}
+      options={{
+        legend: { display: false },
+        title: { display: true, text: `Current state in ${country}` },
+      }}
+    />
+  ) : null;
+  return (
+    <div className={styles.container}>{country ? barChart : linerChart}</div>
+  );
 };
 
 export default Chart;
